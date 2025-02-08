@@ -3,6 +3,8 @@ const app = express();
 const router = express.Router();
 const User = require('../../models/user');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const jwt_decode = require('jwt-decode');
 
 //NOTE:: User Sign-Up Fucntion
 router.post('/sign-up', async (req,res) => {
@@ -56,16 +58,56 @@ router.post('/sign-up', async (req,res) => {
 
    } catch(error) {
       console.log(error)
-      return res.status(500).json({status: false, message: error})
+      return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
 });
 
-//NOTE:: User Sign-Up fucntion
+//NOTE:: User Sign-In fucntion
 router.post('/auth/login', async (req,res) => {
    try {
-     
+      let {username, email, password } = req.body;
+      
+      //NOTE:: Request body validation
+      if(!email && !username) {
+         return res.status(400).json({status: false, message: "Please enter your username or email"});
+      }
+      if(!password) {
+         return res.status(400).json({status: false, message: "Please enter your paasword"});
+      }
+
+      //NOTE:: If user login with email and password
+      if(email) {
+         let mail = await User.findOne({ email: email });
+         if(mail) {
+            let check = await bcrypt.compare(password, mail.password);
+            if(check) {
+               let token = jwt.sign({ email: mail.email,  role: mail.role  }, process.env.JWT_SECRET, {
+                  expiresIn: '1h',
+               });  
+               let decode = jwt.decode(token, {complete: true});
+               return res.status(200).json({status: true, accesstoken: token });
+            } 
+         }  
+      } 
+
+      //NOTE:: If user login with username and password
+      if(username) {
+         let user = await User.findOne({ username: username });
+         if(user) {
+            let check = await bcrypt.compare(password, user.password);
+            if(check) {
+               const token = jwt.sign({ userName: user.username, role: user.role }, process.env.JWT_SECRET, {
+                  expiresIn: '1h',
+               });
+               let decode = jwt.decode(token, {complete: true});
+               return res.status(200).json({status: true, accesstoken: token });
+            } 
+         }  
+      } 
+      
    } catch(error) {
-      return res.status(500).json({status: false, message: error})
+      console.log(error)
+      return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
 });
 

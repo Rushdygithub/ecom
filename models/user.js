@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema({
    recentlySearches: {
     type: [String]
    },
+   role: {
+      type: String,
+      enum : ["Admin","Customer"],
+      default: 'Customer'
+   }
 });
 
 
