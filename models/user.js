@@ -16,11 +16,16 @@ const userSchema = new mongoose.Schema({
    },
    username: {
     type: Number,
-    trim: true
+    trim: true,
+    maxLength:10,
+    description: "must be a string (3 to 20 chars) and is required"
+   },
+   password: {
+    type: String
    },
    recentlySearches: {
     type: [String]
-   }
+   },
 });
 
 
