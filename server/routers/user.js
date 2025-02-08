@@ -4,7 +4,6 @@ const router = express.Router();
 const User = require('../../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const jwt_decode = require('jwt-decode');
 
 //NOTE:: User Sign-Up Fucntion
 router.post('/sign-up', async (req,res) => {
@@ -78,35 +77,41 @@ router.post('/auth/login', async (req,res) => {
       //NOTE:: If user login with email and password
       if(email) {
          let mail = await User.findOne({ email: email });
-         if(mail) {
-            let check = await bcrypt.compare(password, mail.password);
-            if(check) {
-               let token = jwt.sign({ email: mail.email,  role: mail.role  }, process.env.JWT_SECRET, {
-                  expiresIn: '1h',
-               });  
-               let decode = jwt.decode(token, {complete: true});
-               return res.status(200).json({status: true, accesstoken: token });
-            } 
-         }  
+            if(mail) {
+               let check = await bcrypt.compare(password, mail.password);
+                  if(check) {
+                     let token = jwt.sign({ email: mail.email,  role: mail.role  }, process.env.JWT_SECRET, {expiresIn: '1h'});  
+                     let decode = jwt.decode(token, {complete: true});
+                     return res.status(200).json({status: true, accesstoken: token });
+                  } 
+            }  
       } 
 
       //NOTE:: If user login with username and password
       if(username) {
          let user = await User.findOne({ username: username });
-         if(user) {
-            let check = await bcrypt.compare(password, user.password);
-            if(check) {
-               const token = jwt.sign({ userName: user.username, role: user.role }, process.env.JWT_SECRET, {
-                  expiresIn: '1h',
-               });
-               let decode = jwt.decode(token, {complete: true});
-               return res.status(200).json({status: true, accesstoken: token });
-            } 
-         }  
+            if(user) {
+               let check = await bcrypt.compare(password, user.password);
+                  if(check) {
+                     const token = jwt.sign({ userName: user.username, role: user.role }, process.env.JWT_SECRET, {expiresIn: '1h'});
+                     let decode = jwt.decode(token, {complete: true});
+                     return res.status(200).json({status: true, accesstoken: token });
+                  } 
+            }  
       } 
       
    } catch(error) {
       console.log(error)
+      return res.status(500).json({status: false, message: 'Internal Server Error'});
+   }
+});
+
+//NOTE:: User Sign-In fucntion
+router.get('/test', async (req,res) => {
+   try {
+      return res.status(200).json({status: true, message: "Done" });
+   } catch(error) {
+      console.log(error,"====================>")
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
 });
