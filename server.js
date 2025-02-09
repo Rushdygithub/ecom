@@ -8,7 +8,6 @@ const bodyParser = require('body-parser');
 // const {tokenVerify} = require('../APP/server/middlewares/verify');
 const cookieParser = require('cookie-parser');
 
- 
 //NOTE:: Make DB connectivity 
 mongoose.connect(process.env.MONGODB_URL, {
 }).then(() => {
@@ -22,12 +21,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cookieParser());
-// app.use(tokenVerify);
-
-// app.use("/web-bff", )
+//app.use("/web-bff", )
 
 app.use('/',user);
-
 
 app.listen(process.env.PORT || 8000, (req,error) => {
   if(error) {

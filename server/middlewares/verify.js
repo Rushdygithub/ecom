@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const User = require('../../models/user');
 
-
 // NOTE:: Access token fucntion
 const getJwtToken = async (user) => {
   console.log(user._id)
@@ -13,7 +12,6 @@ const getJwtToken = async (user) => {
 const getJwtTokenWithCookie = async (user,statusCode,req,res) => {
 
     const token = await getJwtToken(user);
-
     const options = {
       expires: new Date(Date.now() + process.env.COOKIE_EXPIRESIN * 24 * 60),
       httpOnly:true
@@ -36,15 +34,28 @@ const protect = async (req,res,next) => {
     // else if(res.cookie.token) {}
     let decoded = jwt.verify(token,  process.env.JWT_SECRET);
     req.user = await User.findById(decoded.id);
-    next()
-    // console.log('============', req.user)
+    console.log("============",req.user)
+    next();
    
   } catch(error) {
-    return res.status(401).json({error: error })
+    console.log(error)
+    return res.status(401).json({error: error });
   }
+}
+
+//NOTE:: Role base authountication
+const roleAuth = (...role) => {
+  return (req, res, next) => {
+    console.log("========req,user",req.user)
+    if(!role.includes(req.user.role)) {
+      return res.status(401).json({status: false, message: "Anuthorized"})
+    }
+    next()
+}
 }
 
 module.exports = {
   getJwtTokenWithCookie,
-  protect
+  protect,
+  roleAuth
 };

@@ -5,8 +5,7 @@ const User = require('../../models/user');
 const bcrypt = require('bcrypt');
 const {signUpController} = require('../controllers/user');
 const {protect} = require('../middlewares/verify');
-const {getJwtTokenWithCookie} = require('../middlewares/verify');
-
+const {getJwtTokenWithCookie,roleAuth} = require('../middlewares/verify');
 
 //NOTE:: User Sign-Up Fucntion
 router.post('/sign-up', async (req,res) => {
@@ -77,14 +76,11 @@ router.post('/auth/login',  async (req,res) => {
          return res.status(400).json({status: false, message: "Please enter your paasword"});
       }
 
-      //NOTE:: If user login with email and password
+      //NOTE:: If user login with email and password - (Controller)
       await signUpController(req,res,email,password);
   
-      //NOTE:: If user login with username and password
+      //NOTE:: If user login with username and password  - (Controller)
       await signUpController(req,res,username,password);
-   
-      // token = emailUser ? emailUser : mobileUser;
-      // return res.status(201).json({status: true, token: token });
       
    } catch(error) {
       return res.status(500).json({status: false, message: 'Internal Server Error'});
@@ -92,7 +88,7 @@ router.post('/auth/login',  async (req,res) => {
 });
 
 //NOTE:: Get user account details function
-router.get('/user/me',  protect, async (req,res) => {
+router.get('/user/me',  protect, roleAuth("Admin","Customer"), async (req,res) => {
    try {
       let account = await User.findById(req.user._id);
       return res.status(201).json({status: true, account: account });   

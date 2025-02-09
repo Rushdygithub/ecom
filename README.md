@@ -3,7 +3,7 @@ Building a super functional e-commerce app requires a well-structured backend wi
 Core Features for Your E-Commerce App
 
 1. Authentication & User Management
-User Registration (Email, Phone, Social Login - Google, Facebook)
+User Registration
 Secure Authentication (JWT + Refresh Tokens, OAuth)
 Role-Based Access Control (Admin, Vendor, Customer)
 Profile Management (Edit Name, Email, Address, Payment Methods)
