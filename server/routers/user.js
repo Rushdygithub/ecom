@@ -3,7 +3,10 @@ const app = express();
 const router = express.Router();
 const User = require('../../models/user');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const {signUpController} = require('../controllers/user');
+const {protect} = require('../middlewares/verify');
+const {getJwtTokenWithCookie} = require('../middlewares/verify');
+
 
 //NOTE:: User Sign-Up Fucntion
 router.post('/sign-up', async (req,res) => {
@@ -51,18 +54,18 @@ router.post('/sign-up', async (req,res) => {
       req.body.password = hashPassword;
 
       //NOTE:: Create user method
-      const user = new User(req.body);
+      let user = new User(req.body);
       await user.save();
-      return res.status(201).json({status: true, message: "Signup Succesfull"});
+
+      await getJwtTokenWithCookie(user,201,req,res);
 
    } catch(error) {
-      console.log(error)
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
 });
 
 //NOTE:: User Sign-In fucntion
-router.post('/auth/login', async (req,res) => {
+router.post('/auth/login',  async (req,res) => {
    try {
       let {username, email, password } = req.body;
       
@@ -75,43 +78,25 @@ router.post('/auth/login', async (req,res) => {
       }
 
       //NOTE:: If user login with email and password
-      if(email) {
-         let mail = await User.findOne({ email: email });
-            if(mail) {
-               let check = await bcrypt.compare(password, mail.password);
-                  if(check) {
-                     let token = jwt.sign({ email: mail.email,  role: mail.role  }, process.env.JWT_SECRET, {expiresIn: '1h'});  
-                     let decode = jwt.decode(token, {complete: true});
-                     return res.status(200).json({status: true, accesstoken: token });
-                  } 
-            }  
-      } 
-
+      await signUpController(req,res,email,password);
+  
       //NOTE:: If user login with username and password
-      if(username) {
-         let user = await User.findOne({ username: username });
-            if(user) {
-               let check = await bcrypt.compare(password, user.password);
-                  if(check) {
-                     const token = jwt.sign({ userName: user.username, role: user.role }, process.env.JWT_SECRET, {expiresIn: '1h'});
-                     let decode = jwt.decode(token, {complete: true});
-                     return res.status(200).json({status: true, accesstoken: token });
-                  } 
-            }  
-      } 
+      await signUpController(req,res,username,password);
+   
+      // token = emailUser ? emailUser : mobileUser;
+      // return res.status(201).json({status: true, token: token });
       
    } catch(error) {
-      console.log(error)
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
 });
 
-//NOTE:: User Sign-In fucntion
-router.get('/test', async (req,res) => {
+//NOTE:: Get user account details function
+router.get('/user/me',  protect, async (req,res) => {
    try {
-      return res.status(200).json({status: true, message: "Done" });
+      let account = await User.findById(req.user._id);
+      return res.status(201).json({status: true, account: account });   
    } catch(error) {
-      console.log(error,"====================>")
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
 });

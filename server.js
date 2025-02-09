@@ -5,8 +5,10 @@ require('dotenv').config();
 const user = require('./server/routers/user');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const verify = require('../APP/server/middlewares/verify');
+// const {tokenVerify} = require('../APP/server/middlewares/verify');
+const cookieParser = require('cookie-parser');
 
+ 
 //NOTE:: Make DB connectivity 
 mongoose.connect(process.env.MONGODB_URL, {
 }).then(() => {
@@ -19,7 +21,8 @@ mongoose.connect(process.env.MONGODB_URL, {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(verify);
+app.use(cookieParser());
+// app.use(tokenVerify);
 
 // app.use("/web-bff", )
 
