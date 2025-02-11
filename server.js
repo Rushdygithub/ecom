@@ -3,6 +3,8 @@ const app = express();
 const router = express.Router();
 require('dotenv').config();
 const user = require('./server/routers/user');
+const product = require('./server/routers/product');
+const category = require('./server/routers/category');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 // const {tokenVerify} = require('../APP/server/middlewares/verify');
@@ -24,6 +26,8 @@ app.use(cookieParser());
 //app.use("/web-bff", )
 
 app.use('/',user);
+app.use('/',product);
+app.use('/',category);
 
 app.listen(process.env.PORT || 8000, (req,error) => {
   if(error) {

@@ -33,8 +33,9 @@ const protect = async (req,res,next) => {
     }
     // else if(res.cookie.token) {}
     let decoded = jwt.verify(token,  process.env.JWT_SECRET);
+    // console.log("id",decoded.id)
     req.user = await User.findById(decoded.id);
-    console.log("============",req.user)
+    // console.log("============",req.user)
     next();
    
   } catch(error) {
@@ -46,7 +47,7 @@ const protect = async (req,res,next) => {
 //NOTE:: Role base authountication
 const roleAuth = (...role) => {
   return (req, res, next) => {
-    console.log("========req,user",req.user)
+    // console.log("========req,user",req.user)
     if(!role.includes(req.user.role)) {
       return res.status(401).json({status: false, message: "Anuthorized"})
     }
