@@ -4,11 +4,10 @@ Core Features for Your E-Commerce App
 
 1. Authentication & User Management
 User Registration - done
-Secure Authentication (JWT + Refresh Tokens, OAuth)
-Role-Based Access Control (Admin , Customer)
-OTP veryvification 
+Secure Authentication (JWT + Refresh Tokens, OAuth) - done
+Role-Based Access Control (Admin , Customer) - done
+OTP veryvification - done
 Profile Management (Edit Name, Email, Address, Payment Methods)
-MailServer@123
 
 Password Reset (OTP / Email-based)
 

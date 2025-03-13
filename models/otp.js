@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const getSLTDate = () => {
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Colombo" }));
+};
 
 const otpSchema = new mongoose.Schema({
   otp: {
@@ -7,16 +10,9 @@ const otpSchema = new mongoose.Schema({
     minlength: 4,  
     required: true
   },
-  customer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    unique: true, // One-to-one relationship
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    expires: 60 * 5, // The document will be automatically deleted after 5 minutes of its creation time
+  email: {
+    type: String,
+    trim: true
   }
 });
 

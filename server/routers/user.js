@@ -12,6 +12,7 @@ const smtpTransport = require('nodemailer-smtp-transport');
 
 //NOTE:: User Sign-Up Fucntion
 router.post('/sign-up', async (req,res) => {
+
    try {
       let {firstName,lastName,email,username,password} = req.body;
       //NOTE:: Request body validation
@@ -64,10 +65,12 @@ router.post('/sign-up', async (req,res) => {
    } catch(error) {
       return res.status(500).json({status: false, message: error });
    }
+
 });
 
 //NOTE:: User Sign-In fucntion
 router.post('/auth/login',  async (req,res) => {
+
    try {
       let { username, email, password } = req.body;
       
@@ -85,10 +88,12 @@ router.post('/auth/login',  async (req,res) => {
    } catch(error) {
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
+
 });
 
 //NOTE:: Send OTP function
-router.post('/send/otp',  protect, roleAuth("Customer"), async (req,res) => {
+router.post('/send/otp',  async (req,res) => {
+
    try {
       
       if(!req.body.email) {
@@ -101,14 +106,14 @@ router.post('/send/otp',  protect, roleAuth("Customer"), async (req,res) => {
       //       port: 587,
       //       secure: true,
       //       auth: {
-      //         user: 'rushdynaloordeen@gmail.com',
-      //         pass: 'wyk jedj bqvp diwt',
+      //         user: '',
+      //         pass: '',
       //       },
       //     });
 
       //     var mailOptions = {
-      //       from: 'rushdynaloordeen@gmail.com',
-      //       to: 'mohomedrushdi972@gmail.com', 
+      //       from: '',
+      //       to: '', 
       //       subject: ' | new message test !',
       //       text: 'test'
       //   }
@@ -120,36 +125,71 @@ router.post('/send/otp',  protect, roleAuth("Customer"), async (req,res) => {
       //       }
       //   });
 
+      //NOTE:: OTP generation
       const otpGen = Math.floor(100000 + Math.random() * 900000);
 
       //NOTE:: Send otp to collection
-      const otp = await OTP.findOne({ customer: req.user._id });
+      const otp = await OTP.findOne({ email: req.body.email });
 
       if(!otp) {
-         let createOtp = new OTP({ customer: req.user._id , otp: otpGen });
+         //NOTE:: Store the OTP number in a collection
+         let createOtp = new OTP({ email: req.body.email , otp: otpGen });
          await createOtp.save();
 
-       return res.status(201).json({status: true, account: 'OTP has been sent to your email' });   
+         return res.status(201).json({status: true, account: 'OTP has been sent to your email' });   
       }
 
-      return res.status(200).json({status: true, account: 'Please check the email'});   
+      return res.status(200).json({status: true, account: 'OTP is already sent, Please check the email'});   
       
    } catch(error) {
       console.log(error)
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
+
+});
+
+//NOTE:: Verify OTP
+router.post('/verify/otp',  async (req,res) => {
+
+   try {
+      
+      const { email, otp } = req.body;
+      //NOTE:: Check the email id is valid or not
+      const emailFind = await OTP.find({ email: email });
+
+      if(emailFind[0].email) {
+         //NOTE:: Verify OTP
+         if(emailFind[0].otp === otp) {
+
+            //NOTE:: This will remove the OTP after 5 minute
+            setTimeout(async () => {
+               await OTP.deleteOne({ email: email });
+           }, 300000);
+
+            //NOTE:: OTP is valid
+            return res.status(200).json({ status:true, message:'OTP veryfied success' });     
+         } else {
+            //NOTE:: OTP is invalid
+            return res.status(401).json({ status:true, message:'OTP verify filed' });     
+         }
+      } 
+
+   } catch(error) {
+      return res.status(401).json({status: false, message: 'OTP has been expired'});
+   }
+
 });
 
 //NOTE:: Get user account details function
-router.get('/me',  protect, roleAuth("Customer"), async (req,res) => {
+router.get('/account',  protect, roleAuth("Customer"), async (req,res) => {
+
    try {
       let account = await User.findById(req.user._id);
       return res.status(201).json({status: true, account: account });   
    } catch(error) {
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
+
 });
-
-
 
 module.exports = router;
