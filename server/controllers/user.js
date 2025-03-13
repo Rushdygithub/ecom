@@ -3,34 +3,58 @@ const bcrypt = require('bcrypt');
 const {getJwtTokenWithCookie} = require('../middlewares/verify');
 
 //NOTE:: Sign-Up controller
-const signUpController = async (req,res,data,password) => {
-    //NOTE:: If user login with email and password
-    const regexNum = /^-?\d[0-9.e]*$/
- 
-    if(regexNum.test(data)) {
-      if(data) {
-        let user = await User.findOne({ username: data });
-           if(user) {
-              let check = await bcrypt.compare(password, user.password);
-                 if(check) {
-                    await getJwtTokenWithCookie(user,201,req,res);
-                 } 
-           } 
-      }    
-   }
+const signUpController = async (req, res, data) => {
+
+   //NOTE:: If it is a email this code block will excute
+   if(data.email) {
+
+      //NOTE:: Mongoose query for find user by email
+      let user = await User.findOne({ email: data.email });
+
+            if(user) {
+
+            //NOTE:: Password comparison
+            let password = await bcrypt.compare(data.password, user.password);
+            
+            if(password) {
+               //NOTE:: Token issue
+               await getJwtTokenWithCookie(user, 201, req, res);
+            } else {
+               //NOTE:: Error
+               return res.status(401).json({status: false, message: 'Please enter your correct password'});
+            }
+
+            } else {
+               //NOTE:: Error
+               return res.status(401).json({status: false, message: 'Please enter your correct email address'});
+            }
+   } 
    else {
-   //NOTE:: If user login with username and password
-   let mail = await User.findOne({ email: data });
-   if(mail) {
-      let check = await bcrypt.compare(password, mail.password);
-         if(check) {
-            await getJwtTokenWithCookie(mail,201,req,res);
-         } 
-        }
-  }
-}
+      //NOTE:: Mongoose query for find user by mobile
+      let user = await User.findOne({ username: data.username });
+
+          if (user) {
+
+            //NOTE:: Password comparison
+            let password = await bcrypt.compare(data.password, user.password);
+
+            if (password) {
+             //NOTE:: Token issue
+              await getJwtTokenWithCookie(user, 201, req, res);
+            } else {
+            //NOTE:: Error
+               return res.status(401).json({status: false, message: 'Please enter your correct password'});
+            }
+
+          } else {
+            //NOTE:: Error
+            return res.status(401).json({status: false, message: 'Please enter your correct mobile number'});
+          }
+   }
+   
+ };
+ 
 
 module.exports = {
    signUpController
 }
-

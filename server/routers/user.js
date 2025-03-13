@@ -2,10 +2,13 @@ const express = require('express');
 const app = express();
 const router = express.Router();
 const User = require('../../models/user');
+const OTP = require('../../models/otp');
 const bcrypt = require('bcrypt');
 const {signUpController} = require('../controllers/user');
 const {protect} = require('../middlewares/verify');
 const {getJwtTokenWithCookie,roleAuth} = require('../middlewares/verify');
+const nodemailer = require("nodemailer");
+const smtpTransport = require('nodemailer-smtp-transport');
 
 //NOTE:: User Sign-Up Fucntion
 router.post('/sign-up', async (req,res) => {
@@ -56,17 +59,17 @@ router.post('/sign-up', async (req,res) => {
       let user = new User(req.body);
       await user.save();
 
-      await getJwtTokenWithCookie(user,201,req,res);
+      const userToken = await getJwtTokenWithCookie(user,201,req,res);
 
    } catch(error) {
-      return res.status(500).json({status: false, message: 'Internal Server Error'});
+      return res.status(500).json({status: false, message: error });
    }
 });
 
 //NOTE:: User Sign-In fucntion
 router.post('/auth/login',  async (req,res) => {
    try {
-      let {username, email, password } = req.body;
+      let { username, email, password } = req.body;
       
       //NOTE:: Request body validation
       if(!email && !username) {
@@ -77,18 +80,68 @@ router.post('/auth/login',  async (req,res) => {
       }
 
       //NOTE:: If user login with email and password - (Controller)
-      await signUpController(req,res,email,password);
-  
-      //NOTE:: If user login with username and password  - (Controller)
-      await signUpController(req,res,username,password);
-      
+      await signUpController(req,res,req.body);
+
    } catch(error) {
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
 });
 
+//NOTE:: Send OTP function
+router.post('/send/otp',  protect, roleAuth("Customer"), async (req,res) => {
+   try {
+      
+      if(!req.body.email) {
+         return res.status(400).json({status: false, message: "Please enter the email address"});
+      } 
+
+      //    const smtpTransports = nodemailer.createTransport({
+      //       service: "Gmail",
+      //       host: "smtp.gmail.com",
+      //       port: 587,
+      //       secure: true,
+      //       auth: {
+      //         user: 'rushdynaloordeen@gmail.com',
+      //         pass: 'wyk jedj bqvp diwt',
+      //       },
+      //     });
+
+      //     var mailOptions = {
+      //       from: 'rushdynaloordeen@gmail.com',
+      //       to: 'mohomedrushdi972@gmail.com', 
+      //       subject: ' | new message test !',
+      //       text: 'test'
+      //   }
+      //   smtpTransports.sendMail(mailOptions, function(error, response){
+      //       if(error){
+      //           console.log(error);
+      //       }else{
+      //           res.redirect('/');
+      //       }
+      //   });
+
+      const otpGen = Math.floor(100000 + Math.random() * 900000);
+
+      //NOTE:: Send otp to collection
+      const otp = await OTP.findOne({ customer: req.user._id });
+
+      if(!otp) {
+         let createOtp = new OTP({ customer: req.user._id , otp: otpGen });
+         await createOtp.save();
+
+       return res.status(201).json({status: true, account: 'OTP has been sent to your email' });   
+      }
+
+      return res.status(200).json({status: true, account: 'Please check the email'});   
+      
+   } catch(error) {
+      console.log(error)
+      return res.status(500).json({status: false, message: 'Internal Server Error'});
+   }
+});
+
 //NOTE:: Get user account details function
-router.get('/user/me',  protect, roleAuth("Admin","Customer"), async (req,res) => {
+router.get('/me',  protect, roleAuth("Customer"), async (req,res) => {
    try {
       let account = await User.findById(req.user._id);
       return res.status(201).json({status: true, account: account });   
@@ -96,5 +149,7 @@ router.get('/user/me',  protect, roleAuth("Admin","Customer"), async (req,res) =
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
 });
+
+
 
 module.exports = router;

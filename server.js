@@ -7,7 +7,6 @@ const product = require('./server/routers/product');
 const category = require('./server/routers/category');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-// const {tokenVerify} = require('../APP/server/middlewares/verify');
 const cookieParser = require('cookie-parser');
 
 //NOTE:: Make DB connectivity 
@@ -15,7 +14,7 @@ mongoose.connect(process.env.MONGODB_URL, {
 }).then(() => {
     console.log('Mongodb Initialled');
 }).catch((error) => {
-    console.error('Error connecting to MongoDB:', error);
+    console.error('Error connecting to MongoDB:', error.message);
 });
 
 //NOTE:: Middlewares
@@ -23,9 +22,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cookieParser());
-//app.use("/web-bff", )
 
-app.use('/',user);
+app.use('/user',user);
 app.use('/',product);
 app.use('/',category);
 
