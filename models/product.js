@@ -28,7 +28,12 @@ const productSchema = new mongoose.Schema({
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'category',
-    // required: true
+    required: true
+  },
+  merchant: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'merchant',
+    required: true
   },
   // brand: {
   //   type: mongoose.Schema.Types.ObjectId,

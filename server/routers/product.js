@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../../models/product');
 const Category = require('../../models/category');
-const {} = require('../controllers/product');
+const Merchant = require('../../models/merchant');
 const {protect} = require('../middlewares/verify');
 const {roleAuth} = require('../middlewares/verify');
 
+//NOTE:: Product creation route
 router.post('/add/product', protect, roleAuth("Admin","Customer"), async (req,res) => {
   try {
-    const {name,productCode,description,price,discount,stock,images,category,tags,specifications,status} = req.body;
+    const { name,productCode,description,price,discount,stock,images,category,merchant,tags,specifications,status } = req.body;
 
     //NOTE:: Request body validation
     if(!name) {
@@ -29,16 +30,19 @@ router.post('/add/product', protect, roleAuth("Admin","Customer"), async (req,re
     if(!category) {
       return res.status(400).json({status: false, message: "Product category is required"});
     }
-
-    const getCategory =  await Category.findOne({categoryCode:category});
-
-    if(!getCategory) {
-      return res.status(404).json({status: true, message: "Category Not Found"});
+    if(!merchant) {
+      return res.status(400).json({status: false, message: "Merchant is required"});
     }
-  
+
+    //NOTE:: Get category and merchant documents
+    const getCategory =  await Category.findOne({ name: category });
+    const getMerchant = await Merchant.findOne({ name: merchant });
+
+    //NOTE:: Product object and creation
     const product = new Product({
       ...req.body,
-      category: getCategory?._id, 
+      category: getCategory._id, 
+      merchant: getMerchant._id
     });
     await product.save();
 
@@ -50,13 +54,17 @@ router.post('/add/product', protect, roleAuth("Admin","Customer"), async (req,re
   }
 });
 
+//NOTE:: Get all product route
 router.get('/get/product',  protect, roleAuth("Admin","Customer"), async (req,res) => {
   try {
-    const getProduct = await Product.findOne({ name: req.query.name }).populate('category')
+    const getProduct = await Product.find()
+          .populate('category')
+          .populate('merchant')
     
     return res.status(200).json({status: true, data: getProduct });
 
   } catch(error) {
+    console.log(error);
     return res.status(500).json({status: false, message: "Get Product Failed"});
   }
 });

@@ -1,5 +1,7 @@
 Building a super functional e-commerce app requires a well-structured backend with essential features that ensure smooth user experience, security, and scalability. Since you’re using Node.js for the backend, you can build it with Express.js (or NestJS for a more structured approach) and integrate a MongoDB (NoSQL) or PostgreSQL (SQL) database.
 
+# Keep it mind - When you define a model name keep it with first latter in simple
+
 Core Features for Your E-Commerce App
 
 1. Authentication & User Management
