@@ -5,6 +5,7 @@ require('dotenv').config();
 const user = require('./server/routers/user');
 const product = require('./server/routers/product');
 const category = require('./server/routers/category');
+const merchant = require('./server/routers/merchant');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use('/user',user);
 app.use('/',product);
 app.use('/',category);
+app.use('/',merchant);
 
 app.listen(process.env.PORT || 8000, (req,error) => {
   if(error) {
