@@ -4,7 +4,6 @@ const {getJwtTokenWithCookie} = require('../middlewares/verify');
 
 //NOTE:: Sign-Up controller
 const signUpController = async (req, res, data) => {
-
    //NOTE:: If it is a email this code block will excute
    if(data.email) {
 

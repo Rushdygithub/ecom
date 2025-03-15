@@ -28,6 +28,7 @@ router.post('/add/merchant', protect, roleAuth("Admin","Customer"), async (req,r
     return res.status(201).json({status: true, message: "Merchant Added Succesfully"});
 
   } catch(error) {
+    //NOTE:: Error
     return res.status(500).json({status: false, message: "Merchant added Failed"});
   }
 });
@@ -41,6 +42,7 @@ router.get('/get/merchant', protect, roleAuth("Admin","Customer"), async (req,re
     return res.status(200).json({status: true, data: getMerchant });
 
   } catch(error) {
+    //NOTE:: Error
     return res.status(500).json({status: false, message: "Get Merchant Failed"});
   }
 });
@@ -68,6 +70,7 @@ router.put('/merchant/:id', protect, roleAuth("Admin","Customer"), async (req,re
     return res.status(200).json({status: true, data: updateMerchant });
 
   } catch(error) {
+    //NOTE:: Error
     return res.status(500).json({status: false, message: "Update Merchant Failed"});
   }
 });
@@ -81,6 +84,7 @@ router.delete('/merchant/delete/:id', protect, roleAuth("Admin","Customer"), asy
     return res.status(200).json({status: true, data: deleteDocument });
 
   } catch(error) {
+    //NOTE:: Error
     return res.status(500).json({status: false, message: "Remove Merchant Failed"});
   }
 });

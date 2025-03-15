@@ -49,7 +49,7 @@ router.post('/add/product', protect, roleAuth("Admin","Customer"), async (req,re
     return res.status(201).json({status: true, message: "Product Added Succesfully"});
 
   } catch(error) {
-    console.log(error)
+    //NOTE:: Error
     return res.status(500).json({status: false, message: "Product Add Failed"});
   }
 });
@@ -64,7 +64,7 @@ router.get('/get/product',  protect, roleAuth("Admin","Customer"), async (req,re
     return res.status(200).json({status: true, data: getProduct });
 
   } catch(error) {
-    console.log(error);
+    //NOTE:: Error
     return res.status(500).json({status: false, message: "Get Product Failed"});
   }
 });

@@ -195,9 +195,11 @@ router.post('/verify/otp',  async (req,res) => {
 //NOTE:: Get user account details function
 router.get('/account',  protect, roleAuth("Customer"), async (req,res) => {
    try {
+      //NOTE:: Get register user data from user collection
       let account = await User.findById(req.user._id);
       return res.status(201).json({status: true, account: account });   
    } catch(error) {
+      //NOTE:: Error
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
 
