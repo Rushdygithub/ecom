@@ -174,21 +174,21 @@ router.post('/verify/otp',  async (req,res) => {
       //NOTE:: Mongoose query for find user by email
       let user = await User.findOne({ email: email });
         
-         if(verifyOTP.length && verifyOTP[0].otp === otp) {
-           //Success scenario
-           //NOTE:: Token issue
-           await getJwtTokenWithCookie(user, 201, req, res);
-         } 
+      if(verifyOTP.length && verifyOTP[0].otp === otp) {
+         //Success scenario
+         //NOTE:: Token issue
+         await getJwtTokenWithCookie(user, 201, req, res);
+      } 
 
-         if(verifyOTP.length && verifyOTP[0].otp !== otp) {
-            //Invalid scenario
-            return res.status(401).json({ status:false, message:'Invalid OTP' });    
-         } 
+      if(verifyOTP.length && verifyOTP[0].otp !== otp) {
+         //Invalid scenario
+         return res.status(401).json({ status:false, message:'Invalid OTP' });    
+      } 
 
-         if (verifyOTP.length === 0) {  
-            // Expired scenario
-            return res.status(401).json({ status: false, message: 'OTP is Expired' });   
-         }
+      if (verifyOTP.length === 0) {  
+         // Expired scenario
+         return res.status(401).json({ status: false, message: 'OTP is Expired' });   
+      }
 
 });
 

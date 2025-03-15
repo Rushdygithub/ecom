@@ -6,17 +6,18 @@ Core Features for Your E-Commerce App
 User Registration - done
 Secure Authentication (JWT + Refresh Tokens, OAuth) - done
 Role-Based Access Control (Admin , Customer) - done
-OTP veryvification - done
-Profile Management (Edit Name, Email, Address, Payment Methods)
+OTP based login - done
+<!-- Profile Management (Edit Name, Email, Address, Payment Methods) -->
 
 Password Reset (OTP / Email-based)
 
 2. Product Management
 Add, Edit, Delete, List Products (Admin / Vendor)
 Categories & Subcategories
-Product Images (Cloud Storage like S3 / Firebase)
+Product Images 
 Product Variants (Size, Color, Stock Management)
-Product Ratings & Reviews
+
+
 
 3. Search & Filters
 Recent Searches (Save and suggest recent searches)
