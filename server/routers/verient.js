@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Varient = require('../../models/varient');
 const Product = require('../../models/product');
+const User = require('../../models/user');
 const {protect} = require('../middlewares/verify');
 const {roleAuth} = require('../middlewares/verify');
 
@@ -68,10 +69,7 @@ router.get('/varient/search/:page/:limit', protect, roleAuth("Admin","Customer")
       { 
         $match: { 
           status: 'active', 
-          varientName: { $regex: req.query.name, $options: "i" }, 
-          // Uncomment if filtering by color is needed
-          // color: { $regex: req.query.color, $options: "i" }
-
+          varientName: { $regex: req.query.name, $options: "i" }
         } 
       },
       // { color : { $contains : req.query.color }},
@@ -82,10 +80,34 @@ router.get('/varient/search/:page/:limit', protect, roleAuth("Admin","Customer")
       { $limit: limit }
     ]);
 
-    //NOTE:: Recent search
-    
+        const getUser = await User.findById({_id: req.user._id});
+        let searchTerm = getUser.recentlySearches;
 
-    return res.status(200).json({status: true, data: search });
+        // if([...new Map(searchTerm)]) {
+          //do somthing
+        // }
+
+        if(searchTerm.length === 5) {
+          console.log("==Excuted-1")
+          searchTerm.shift();
+          searchTerm.push(req.query.name)
+        } else {
+          console.log("==Excuted-2")
+          searchTerm.push(req.query.name)
+        }
+
+        //NOTE:: Recent search
+        let obj = {
+          recentlySearches: searchTerm
+        }
+
+        const updateRecentSer = await User.updateOne(
+          { _id: req.user._id }, 
+          { $set: obj } 
+        );
+        
+
+        return res.status(200).json({status: true, data: search });
 
   } catch(error) {
     console.log(error)
