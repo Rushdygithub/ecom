@@ -80,33 +80,28 @@ router.get('/varient/search/:page/:limit', protect, roleAuth("Admin","Customer")
       { $limit: limit }
     ]);
 
+        //NOTE:: Recent search - implementaion
         const getUser = await User.findById({_id: req.user._id});
         let searchTerm = getUser.recentlySearches;
 
-        // if([...new Map(searchTerm)]) {
-          //do somthing
-        // }
-
         if(searchTerm.length === 5) {
-          console.log("==Excuted-1")
           searchTerm.shift();
           searchTerm.push(req.query.name)
+          searchTerm = [...new Set(searchTerm)];
         } else {
-          console.log("==Excuted-2")
           searchTerm.push(req.query.name)
+          searchTerm = [...new Set(searchTerm)];
         }
 
-        //NOTE:: Recent search
-        let obj = {
+        let data = {
           recentlySearches: searchTerm
         }
 
-        const updateRecentSer = await User.updateOne(
+        const updateRecentSearch = await User.updateOne(
           { _id: req.user._id }, 
-          { $set: obj } 
+          { $set: data } 
         );
         
-
         return res.status(200).json({status: true, data: search });
 
   } catch(error) {
