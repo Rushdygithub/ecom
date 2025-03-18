@@ -4,7 +4,7 @@ const router = express.Router();
 const User = require('../../models/user');
 const OTP = require('../../models/otp');
 const bcrypt = require('bcrypt');
-const {signUpController} = require('../controllers/user');
+const {loginController} = require('../controllers/user');
 const {protect} = require('../middlewares/verify');
 const {getJwtTokenWithCookie,roleAuth} = require('../middlewares/verify');
 const nodemailer = require("nodemailer");
@@ -14,7 +14,7 @@ const smtpTransport = require('nodemailer-smtp-transport');
 router.post('/sign-up', async (req,res) => {
 
    try {
-      let {firstName,lastName,email,username,password} = req.body;
+      let { firstName,lastName,email,username,password } = req.body;
       //NOTE:: Request body validation
       if(!firstName) {
         return res.status(400).json({status: false, message: "firstName filed is required"});
@@ -57,7 +57,7 @@ router.post('/sign-up', async (req,res) => {
       req.body.password = hashPassword;
 
       //NOTE:: Create user method
-      let user = new User(req.body);
+      let user = await new User(req.body);
       await user.save();
 
       const userToken = await getJwtTokenWithCookie(user,201,req,res);
@@ -70,10 +70,9 @@ router.post('/sign-up', async (req,res) => {
 
 //NOTE:: User Sign-In fucntion
 router.post('/auth/login',  async (req,res) => {
-
    try {
-      let { username, email, password } = req.body;
-      
+      let { username, email, password, failed_attempts } = req.body;
+      console.log("=")
       //NOTE:: Request body validation
       if(!email && !username) {
          return res.status(400).json({status: false, message: "Please enter your username or email"});
@@ -83,9 +82,10 @@ router.post('/auth/login',  async (req,res) => {
       }
 
       //NOTE:: If user login with email and password - (Controller)
-      await signUpController(req,res,req.body);
+      await loginController(req,res,req.body);
 
    } catch(error) {
+      console.log(error)
       return res.status(500).json({status: false, message: 'Internal Server Error'});
    }
 

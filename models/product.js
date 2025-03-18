@@ -59,10 +59,10 @@ const productSchema = new mongoose.Schema({
     of: String // Dynamic key-value pairs for product attributes
   },
   status: {
-    type: String,
-    enum: ['active', 'inactive', 'deleted'],
-    default: 'active'
-  },
+    type: [String],  // Array of strings
+    enum: ["Available", "Out of Stock"],
+    default: ["Available"]
+ },
   createdAt: {
     type: Date,
     default: Date.now

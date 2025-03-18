@@ -14,7 +14,7 @@ OTP based login - done
 Password Reset (OTP / Email-based)
 
 2. Product Management
-Add, Edit, Delete, List Products (Admin / Vendor)
+Add, Edit, Delete, List Products (Admin / Vendor) - done
 Categories & Subcategories
 Product Images 
 Product Variants (Size, Color, Stock Management)

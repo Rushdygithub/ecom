@@ -6,6 +6,7 @@ const Merchant = require('../../models/merchant');
 const {protect} = require('../middlewares/verify');
 const {roleAuth} = require('../middlewares/verify');
 
+//NOTE:: same product code can not be duplicated
 //NOTE:: Product creation route
 router.post('/add/product', protect, roleAuth("Admin","Customer"), async (req,res) => {
   try {
@@ -50,6 +51,7 @@ router.post('/add/product', protect, roleAuth("Admin","Customer"), async (req,re
 
   } catch(error) {
     //NOTE:: Error
+    console.log(error);
     return res.status(500).json({status: false, message: "Product Add Failed"});
   }
 });
@@ -68,6 +70,8 @@ router.get('/get/product',  protect, roleAuth("Admin","Customer"), async (req,re
     return res.status(500).json({status: false, message: "Get Product Failed"});
   }
 });
+
+//NOTE:: Relavant all varient
 
 module.exports = router;
 

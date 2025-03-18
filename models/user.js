@@ -30,6 +30,12 @@ const userSchema = new mongoose.Schema({
       type: String,
       enum : ["Admin","Customer"],
       default: 'Customer'
+   },
+   failed_attempts: {
+      type: Number
+   },
+   attempts_time: {
+      type: String
    }
 });
 
