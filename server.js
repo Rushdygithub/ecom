@@ -7,6 +7,7 @@ const product = require('./server/routers/product');
 const category = require('./server/routers/category');
 const merchant = require('./server/routers/merchant');
 const varient = require('./server/routers/verient');
+const tax = require('./server/routers/tax');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -37,6 +38,7 @@ app.use('/',product);
 app.use('/',category);
 app.use('/',merchant);
 app.use('/',varient);
+app.use('/',tax);
 
 app.listen(process.env.PORT || 8000, (req,error) => {
   if(error) {

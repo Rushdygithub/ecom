@@ -3,10 +3,12 @@ const router = express.Router();
 const Varient = require('../../models/varient');
 const Product = require('../../models/product');
 const User = require('../../models/user');
+const Tax = require('../../models/tax');
+const taxCalculation = require('../../helpers/taxHelper');
 const {protect} = require('../middlewares/verify');
 const {roleAuth} = require('../middlewares/verify');
 
-//NOTE:: if the product is out of stock should be restrict to create 
+//NOTE:: if the product is out of stock should be restrict to create - today
 //NOTE:: Product creation route
 router.post('/add/varient', protect, roleAuth("Admin","Customer"), async (req,res) => {
   try {
@@ -32,9 +34,15 @@ router.post('/add/varient', protect, roleAuth("Admin","Customer"), async (req,re
       return res.status(400).json({status: false, message: "Varient color is required"});
     }
 
+    //NOTE:: Check varient is already exists
+    const varientFind = await Varient.exists({ varientCode: varientCode });
+
+    if(varientFind) {
+      return res.status(400).json({status: false, message: "Varient code is already exists"});
+    }
+    
     //NOTE:: Get product documents (record by product name)
     const getProduct =  await Product.findOne({ name: product });
-    // console.log("=",getProduct)
 
     //NOTE:: Varient object and creation
     const varient = new Varient({
@@ -46,6 +54,7 @@ router.post('/add/varient', protect, roleAuth("Admin","Customer"), async (req,re
     return res.status(201).json({status: true, message: "Varient Added Succesfully"});
 
   } catch(error) {
+    console.log(error)
     //NOTE:: Error
     return res.status(500).json({status: false, message: "Varient Add Failed"});
   }
@@ -55,30 +64,35 @@ router.post('/add/varient', protect, roleAuth("Admin","Customer"), async (req,re
 router.get('/varient/search/:page/:limit', protect, roleAuth("Admin","Customer"), async (req,res) => {
   try {
     
-    //NOTE:: typeCasting
+    //NOTE:: typeCasting string to number
     let page = parseInt(req.params.page);
     let limit= parseInt(req.params.limit);
-
     let skip = (page - 1) * limit;
-    //NOTE:: Skip or offset
-    //NOTE:: offset formula - (page - 1) * limit; 
-    //Let's say client request the 2 page and limit is 20 here the first page has now 20 and the 2 page limit from limit number 21 to 30
-    //Devide limits in previos pages equively
-    //This is how work pagination
-    const search = await Varient.aggregate([
-      { 
-        $match: { 
-          status: 'active', 
-          varientName: { $regex: req.query.name, $options: "i" }
-        } 
-      },
-      // { color : { $contains : req.query.color }},
-      // { price: { $gte: req.query.minPrice, $lte: req.query.maxPrice } },
-      // { $gt: { price: 0 } },
-      { $sort: { price: -1 } }, 
-      { $skip: skip }, 
-      { $limit: limit }
-    ]);
+
+        let search = await Varient.aggregate([
+          { 
+            $match: { 
+              // status: 'active', 
+              varientName: { $regex: req.query.name, $options: "i" }
+            } 
+          },
+          // { color : { $contains : req.query.color }},
+          // { price: { $gte: req.query.minPrice, $lte: req.query.maxPrice } },
+          // { $gt: { price: 0 } },
+          { $sort: { price: -1 } }, 
+          { $skip: skip }, 
+          { $limit: limit }
+        ]);
+
+        const getCategory = await Varient.populate(search, {
+          path: "product",
+          populate: {
+            path: "category" 
+          }
+        });
+        
+        //NOTE:: Tax calculation - implementaion
+        search = await taxCalculation(search);
 
         //NOTE:: Recent search - implementaion
         const getUser = await User.findById({_id: req.user._id});

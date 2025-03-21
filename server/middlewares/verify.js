@@ -32,20 +32,23 @@ const getJwtTokenWithCookie = async (user,statusCode,req,res) => {
 //NOTE:: Verify token
 const protect = async (req,res,next) => {
   try {
+
     const token = req.headers.token;
     if(!token) {
       return res.status(401).json({status: false, message: "Access Denied"})
     }
-    // console.log(token)
+
     // else if(res.cookie.token) {}
     let decoded = jwt.verify(token,  process.env.JWT_SECRET);
     // console.log("id",decoded.user)
     req.user = await User.findById(decoded.user);
-    // console.log("============",req.user)
     next();
    
   } catch(error) {
-    console.log(error)
+    // console.log(error)
+    if(error.name === 'TokenExpiredError') {
+      return res.status(401).json({status: false, message: "Your token has been expired"})
+    }
     return res.status(401).json({error: error });
   }
 }

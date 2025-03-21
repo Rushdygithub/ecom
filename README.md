@@ -19,7 +19,8 @@ Categories & Subcategories
 Product Images 
 Product Variants (Size, Color, Stock Management)
 
-
+tax
+discount
 
 3. Search & Filters
 Recent Searches (Save and suggest recent searches)
