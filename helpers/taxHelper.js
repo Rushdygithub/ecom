@@ -3,9 +3,7 @@ const Category = require('../models/category');
 const Product = require('../models/product');
 const Varient = require('../models/varient');
 
-const taxHelperFunction = async () => {
-
-}
+const taxHelperFunction = async () => { }
 
 const taxCalculation = async (search) => {
 

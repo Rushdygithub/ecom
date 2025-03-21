@@ -125,4 +125,27 @@ router.get('/varient/search/:page/:limit', protect, roleAuth("Admin","Customer")
 });
 
 
+//NOTE:: Get varient- web
+router.get('/varient/all', protect, roleAuth("Admin","Customer"), async (req,res) => {
+  try {
+  
+      let varientList = await Varient.find()
+      .populate({
+        path: 'product',
+        populate: {
+          path: 'category'
+        }
+      });
+  
+      //NOTE:: Tax calculation - implementaion
+      varientList = await taxCalculation(varientList);
+
+      return res.status(200).json({status: true, data: varientList });
+
+  } catch(error) {
+    console.log(error)
+    return res.status(500).json({status: false, message: "Get All Varient Failed"});
+  }
+});
+
 module.exports = router;
